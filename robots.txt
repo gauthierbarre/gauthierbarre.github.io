@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://gauthierbarre.github.io/portefolio/sitemap.xml
