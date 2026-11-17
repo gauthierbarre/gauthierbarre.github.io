@@ -219,6 +219,7 @@ def load_site() -> dict:
         if not site.get(key):
             err(f"site.yml: '{key}' is required")
     site["about_html"] = render_markdown(site.get("about") or "")
+    site["status_html"] = render_inline(str(site.get("status") or ""))
     site["social"] = site.get("social") or []
     site["keywords"] = site.get("keywords") or []
     for key in ("cv", "photo"):

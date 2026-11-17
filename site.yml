@@ -7,9 +7,9 @@ name: Gauthier Barre
 # Portrait shown on the home page (file in static/, square, ~480 px). Leave empty to hide.
 photo: photo.jpg
 # Short line under the name on the home page.
-headline: École Polytechnique & ENSAE (M2 AI MaQI) · Télécom Paris
-# Optional status line (availability), shown under the headline. Leave empty to hide.
-status:
+headline: École Polytechnique & ENSAE (AI for Markets and Quantitative Investment) · Télécom Paris
+# Optional status line (availability), shown under the headline. Markdown allowed. Leave empty to hide.
+status: Looking for a quantitative research internship starting April 2027 — [get in touch](mailto:gauthier.barre@polytechnique.edu).
 
 url: https://gauthierbarre.github.io/portefolio/   # public URL, with trailing slash
 base_path: /portefolio/                            # sub-path on GitHub Pages (used by 404.html)
@@ -23,11 +23,11 @@ about: |
   I am a student in the AI for Markets and Quantitative Investment master (AI MaQI) at
   École Polytechnique and ENSAE, after the engineering programme of Télécom Paris, where I
   studied stochastic modelling and scientific computing, and time series and artificial
-  intelligence.
+  intelligence. I am particularly excited about applying deep learning to market finance.
 
-  My projects are empirical questions on US equities, with an emphasis on getting the data
-  right before drawing conclusions: point-in-time universes, survivorship-free histories,
-  realistic transaction costs and honest baselines.
+  Outside of my studies, I have played sport at a competitive level: tennis, with a national
+  ranking, and rugby, where I was selected for the departmental team and played in the French
+  national tournament.
 
 keywords:
   - Cross-sectional signals
