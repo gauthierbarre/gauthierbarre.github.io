@@ -6,6 +6,7 @@ Sources
   content/projects/<slug>/index.md  one project = front matter + Markdown + its figures
   content/hands-on/<slug>/index.md  Hands-On: a README-style page, optionally rendering a .ipynb
   content/notes/<slug>/index.md     Notes: short articles, comments on press articles, opinion
+  content/personal/<slug>/index.md  Personal: essays unrelated to finance (not shown on the home page)
   content/<section>/links.yml       optional entries that only link elsewhere
   static/                           copied as-is (css, js, favicon, cv.pdf)
   templates/                        Jinja2 templates
@@ -43,7 +44,10 @@ COLLECTIONS = {
     "hands_on": ("hands-on", "hands-on", "Hands-On",
                  "Notebooks and experiments where I write every line of code myself, without AI-generated code."),
     "notes": ("notes", "notes", "Notes", ""),
+    "personal": ("personal", "personal", "Personal", ""),
 }
+# Sections listed under Collection but not on the home page.
+HIDDEN_FROM_HOME = {"personal"}
 STATIC = ROOT / "static"
 TEMPLATES = ROOT / "templates"
 
@@ -457,7 +461,7 @@ def build(include_drafts: bool = False) -> None:
     for key, (_, url_dir, default_title, blurb) in COLLECTIONS.items():
         sections.append({"key": key, "url": f"{url_dir}/", "dir": url_dir, "entries": collections[key],
                          "title": site.get(f"{key}_title") or default_title,
-                         "blurb": site.get(f"{key}_blurb") or blurb})
+                         "blurb": site.get(f"{key}_blurb") or blurb, "on_home": key not in HIDDEN_FROM_HOME})
     # Menu items: (label, href, key, children). "Collection" groups the lighter sections in a dropdown.
     collection_title = site.get("collection_title") or "Collection"
     nav = [("Home", "index.html", "home", []), ("Projects", "projects.html", "projects", []),

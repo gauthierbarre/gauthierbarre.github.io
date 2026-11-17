@@ -6,7 +6,8 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml`. See README.md for th
 ## Rules
 
 - Content lives in `site.yml`, `content/projects/<slug>/index.md`, `content/hands-on/<slug>/index.md`
-  (notebooks / READMEs) and `content/notes/<slug>/index.md` (articles, press comments, opinion).
+  (notebooks / READMEs), `content/notes/<slug>/index.md` (articles, press comments, opinion) and
+  `content/personal/<slug>/index.md` (essays on other topics, `make personal SLUG=… TITLE=…`).
   Do not hand-edit `_site/` (generated, gitignored).
 - To add a project from a GitHub repository, use the `add-project` skill
   (`.claude/skills/add-project/SKILL.md`). For a single notebook or README, use

@@ -14,6 +14,10 @@ status: Looking for a quantitative research internship starting April 2027 — [
 url: https://gauthierbarre.github.io/              # public URL, with trailing slash
 base_path: /                                       # sub-path on GitHub Pages (used by 404.html)
 lang: en
+# Search engines: paste the code from Google Search Console / Bing Webmaster Tools
+# ("HTML tag" method: only the content="..." value), then publish.
+google_site_verification:
+bing_site_verification:
 description: >-
   Gauthier Barre — quantitative research on US equities: systematic signals net of
   costs, point-in-time data and S&P 500 composition reconstruction and prediction.
@@ -54,3 +58,4 @@ cv: cv.pdf
 collection_title: Collection
 hands_on_title: Hands-On      # notebooks, READMEs, experiments  → content/hands-on/
 notes_title: Notes            # articles, comments on the press, opinion → content/notes/
+personal_title: Personal      # essays on other topics → content/personal/ (not on the home page)

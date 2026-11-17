@@ -33,7 +33,7 @@
   </section>
   {% endif %}
 
-  {% for sec in sections if sec.entries %}
+  {% for sec in sections if sec.entries and sec.on_home %}
   <section class="section split" aria-labelledby="{{ sec.dir }}">
     <h2 class="split-side section-title" id="{{ sec.dir }}">{{ sec.title }}</h2>
     <div class="split-main">

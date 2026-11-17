@@ -3,10 +3,12 @@
 
   python scripts/new_entry.py hands-on my-slug "Title" [--ipynb path/to/analysis.ipynb]
   python scripts/new_entry.py notes    my-slug "Title" [--press https://article-url]
+  python scripts/new_entry.py personal my-slug "Title"
 
 Hands-On: a README-style page; with --ipynb the notebook is copied next to it and rendered
 below the text (Markdown cells, code, outputs, figures).
 Notes: a short article in Markdown; with --press it comments a press article (shown as a card).
+Personal: an essay or text unrelated to finance (philosophy, sport, ...).
 The entry is created as a draft: write it, remove `draft: true`, then build.
 """
 import argparse
@@ -45,6 +47,17 @@ Your text in Markdown. For a press article: a short summary in your own words, t
 what it gets right, what it misses, what it means for markets or for quant research.
 """
 
+PERSONAL = """---
+title: {title}
+summary: One sentence shown in the list.
+topic: ""            # e.g. "Philosophy", "Sport"
+date: {today}
+draft: true          # remove this line to publish
+---
+
+Your text in Markdown.
+"""
+
 PRESS = """press:               # the article you comment on (shown as a card under the title)
   url: {url}
   title: ""          # article title
@@ -55,7 +68,7 @@ PRESS = """press:               # the article you comment on (shown as a card un
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("section", choices=["hands-on", "notes"])
+    ap.add_argument("section", choices=["hands-on", "notes", "personal"])
     ap.add_argument("slug")
     ap.add_argument("title", nargs="?", default="Title")
     ap.add_argument("--ipynb", help="hands-on: path to a .ipynb to copy and render")
@@ -81,6 +94,8 @@ def main() -> int:
             shutil.copy2(src, folder / src.name)
             nb_line = f"notebook: {src.name}\n"
         text = HANDS_ON.format(title=title, today=today, nb_line=nb_line)
+    elif args.section == "personal":
+        text = PERSONAL.format(title=title, today=today)
     else:
         text = NOTE.format(title=title, today=today, press=PRESS.format(url=args.press) if args.press else "")
     folder.mkdir(parents=True, exist_ok=True)

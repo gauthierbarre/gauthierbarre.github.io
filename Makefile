@@ -1,6 +1,6 @@
 PY := .venv/bin/python
 
-.PHONY: help install build serve new hands-on note clean
+.PHONY: help install build serve new hands-on note personal clean
 
 help:
 	@echo "make install                     create .venv and install the build dependencies"
@@ -9,6 +9,7 @@ help:
 	@echo "make new SLUG=name TITLE='...'   scaffold content/projects/name/index.md (draft)"
 	@echo "make hands-on SLUG=name TITLE='...' [NB=file.ipynb]   Hands-On entry (README / notebook)"
 	@echo "make note SLUG=name TITLE='...' [URL=press-article]     Notes entry (article, opinion)"
+	@echo "make personal SLUG=name TITLE='...'                   Personal entry (essay, other topics)"
 	@echo "make clean                       remove _site/"
 
 $(PY):
@@ -34,6 +35,10 @@ hands-on: $(PY)
 note: $(PY)
 	@test -n "$(SLUG)" || (echo "usage: make note SLUG=my-note TITLE='My title' [URL=https://press-article]"; exit 1)
 	$(PY) scripts/new_entry.py notes "$(SLUG)" "$(TITLE)" $(if $(URL),--press "$(URL)")
+
+personal: $(PY)
+	@test -n "$(SLUG)" || (echo "usage: make personal SLUG=my-essay TITLE='My title'"; exit 1)
+	$(PY) scripts/new_entry.py personal "$(SLUG)" "$(TITLE)"
 
 clean:
 	rm -rf _site

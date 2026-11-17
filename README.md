@@ -15,6 +15,7 @@ site.yml                          name, headline, status, about, keywords, email
 content/projects/<slug>/index.md  one project: front matter + sections + figures in the same folder
 content/hands-on/<slug>/index.md  Hands-On: a README-style page, optionally rendering a .ipynb
 content/notes/<slug>/index.md     Notes: short articles, comments on press articles, opinion
+content/personal/<slug>/index.md  Personal: essays on other topics (philosophy, sport, ...)
 content/<section>/links.yml       optional entries that only link elsewhere
 static/                           copied as-is: css/, js/, favicon.svg, cv.pdf
 templates/                        page layouts (base, home, projects, project, notes, 404) and icons
@@ -89,9 +90,13 @@ make note SLUG=my-note TITLE='…' URL=https://press-article           # Notes e
 2. Write the text in Markdown: summarise the article in your own words (no long quotes), then your view.
 3. Delete `draft: true`, build, push.
 
-Hands-On and Notes sit under the **Collection** menu (a dropdown, and an overview page at `collection/`).
-On the home page they appear once they have a published entry. Their names are `collection_title`,
-`hands_on_title` and `notes_title` in `site.yml`; the one-line descriptions are `hands_on_blurb` and
+For a text unrelated to finance (an essay, a dissertation), `make personal SLUG=my-essay TITLE='…'`
+creates `content/personal/my-essay/index.md` (draft).
+
+Hands-On, Notes and Personal sit under the **Collection** menu (a dropdown, and an overview page at
+`collection/`). On the home page, Hands-On and Notes appear once they have a published entry; Personal
+is only listed under Collection. Their names are `collection_title`,
+`hands_on_title`, `notes_title` and `personal_title` in `site.yml`; the one-line descriptions are `hands_on_blurb` and
 `notes_blurb` (defaults in `scripts/build.py`). An entry that only links elsewhere can go
 in `content/<section>/links.yml` (fields: date, title, url, topic, summary, source).
 
