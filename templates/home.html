@@ -1,52 +1,41 @@
 {% extends "base.html" %}
 {% block head_extra %}
   <link rel="canonical" href="{{ site.url }}">
+  {% if site.photo %}<meta property="og:image" content="{{ site.url }}{{ site.photo }}">{% endif %}
   <script type="application/ld+json">
   {"@context": "https://schema.org", "@type": "Person", "name": {{ site.name | tojson }}, "url": {{ site.url | tojson }},
    "sameAs": {{ site.social | map(attribute="url") | list | tojson }}}
   </script>
 {% endblock %}
 {% block content %}
-  <section class="block" aria-labelledby="about">
-    <h2 class="smallcaps" id="about">About</h2>
+  <section class="hero">
+    {% if site.photo %}<img class="portrait" src="{{ site.photo }}" alt="Portrait of {{ site.name }}" width="480" height="480">{% endif %}
+    <div>
+      <h1>{{ site.name }}</h1>
+      {% if site.headline %}<p class="headline">{{ site.headline }}</p>{% endif %}
+      {% if site.status %}<p class="status">{{ site.status }}</p>{% endif %}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="about">
+    <h2 class="section-title" id="about"><span class="idx">01.</span> About</h2>
     <div class="prose">{{ site.about_html | safe }}</div>
   </section>
 
-  {% if latest %}
-  <section class="block" aria-labelledby="latest">
-    <h2 class="smallcaps" id="latest">Latest</h2>
-    <ul class="entries">
-      {% for e in latest %}
-      <li class="entry">
-        <p class="entry-meta">
-          <span class="kind">{{ e.kind }}</span>{% if e.label %} · <code>{{ e.label }}</code>{% endif %}
-          · {{ e.date | date }}{% if e.updated %}, updated {{ e.updated | date }}{% endif %}
-        </p>
-        {% if e.kind == "Project" %}
-        <a class="entry-title" href="{{ e.url }}">{{ e.title }}</a>
-        {% else %}
-        <a class="entry-title" href="{{ e.url if e.external else root ~ e.url }}"{% if e.external %} target="_blank" rel="noopener"{% endif %}>{{ e.title }}{% if e.external %} <span class="ext" aria-hidden="true">↗</span>{% endif %}</a>
-        {% endif %}
-      </li>
-      {% endfor %}
-    </ul>
+  {% if projects %}
+  <section class="section" aria-labelledby="projects">
+    <h2 class="section-title" id="projects"><span class="idx">02.</span> Projects</h2>
+    <div class="cards">
+      {% for p in projects %}{% include "_card.html" %}{% endfor %}
+    </div>
   </section>
   {% endif %}
 
-  {% if site.keywords %}
-  <section class="block" aria-labelledby="keywords">
-    <h2 class="smallcaps" id="keywords">Keywords</h2>
-    <p class="keywords">{% for k in site.keywords %}<span>{{ k }}</span>{% endfor %}</p>
-  </section>
-  {% endif %}
-
-  <section class="block" aria-labelledby="contact">
-    <h2 class="smallcaps" id="contact">Contact</h2>
-    <ul class="contact">
-      {% if site.email %}<li>{{ site.email }}</li>{% endif %}
-      {% for s in site.social %}
-      <li><a href="{{ s.url }}" rel="me noopener" target="_blank">{{ s.url | replace("https://", "") | replace("www.", "") }}</a></li>
-      {% endfor %}
-    </ul>
+  <section class="section" aria-labelledby="contact">
+    <h2 class="section-title" id="contact"><span class="idx">0{{ 3 if projects else 2 }}.</span> Contact</h2>
+    <p class="contact-line">
+      {% if site.email %}<a href="mailto:{{ site.email }}">{{ site.email }}</a>{% endif %}
+      {% for s in site.social %}<a href="{{ s.url }}" rel="me noopener" target="_blank">{{ s.label or (s.icon | capitalize) }}</a>{% endfor %}
+    </p>
   </section>
 {% endblock %}

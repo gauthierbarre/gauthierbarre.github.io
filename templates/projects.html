@@ -1,18 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-  <section class="block">
-    <h1 class="smallcaps">Projects</h1>
-    <ul class="entries">
-      {% for p in projects %}
-      <li class="entry">
-        <p class="entry-label"><code>{{ p.label }}</code>{% if p.draft %} <span class="draft">draft</span>{% endif %}</p>
-        <a class="entry-title" href="projects/{{ p.slug }}/">{{ p.title }}</a>
-        <p class="entry-summary">{{ p.summary }}</p>
-        <p class="entry-meta">{{ p.date | date }}{% if p.updated %}, updated {{ p.updated | date }}{% endif %}{% if p.context %} · {{ p.context }}{% endif %}</p>
-      </li>
-      {% else %}
-      <li class="entry">No project yet.</li>
-      {% endfor %}
-    </ul>
-  </section>
+  <header class="page-head">
+    <h1>Projects</h1>
+  </header>
+  <div class="cards">
+    {% for p in projects %}{% include "_card.html" %}{% else %}<p>No project yet.</p>{% endfor %}
+  </div>
 {% endblock %}

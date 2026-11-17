@@ -11,18 +11,18 @@ push to `main`.
 ## Layout
 
 ```
-site.yml                          name, tagline, about, keywords, social links, CV, photo
+site.yml                          name, headline, status, about, keywords, email, links, CV PDF
 content/projects/<slug>/index.md  one project: front matter + sections + figures in the same folder
 content/notes.yml                 short technical notes (links to notebook sections, PDFs, …)
-static/                           copied as-is: css/, js/, favicon.svg, cv.pdf, photo
+static/                           copied as-is: css/, js/, favicon.svg, cv.pdf
 templates/                        page layouts (base, home, projects, project, notes, 404) and icons
 scripts/build.py                  builds _site/ and validates it
 scripts/new_project.py            scaffolds a new project
 .github/workflows/deploy.yml      build on push/PR, deploy main to GitHub Pages
 ```
 
-Pages: **Home** (About, Latest, Keywords, Contact) · **Projects** (list) · one page per project
-with a numbered table of contents · **Notes** · **CV** (appears once `cv:` is set in `site.yml`).
+Pages: **Home** (About, project cards, Contact) · **Projects** · one page per project with a
+numbered table of contents · **Notes** · **CV** (the PDF shown in the page, with a download button).
 
 ## Commands
 
@@ -69,8 +69,8 @@ make new SLUG=my-project TITLE='Does X beat Y?' REPO=https://github.com/gauthier
 
 - **Home page text, keywords, links:** `site.yml`.
 - **Note:** add an entry to `content/notes.yml`.
-- **CV:** put `cv.pdf` in `static/` and set `cv: cv.pdf` in `site.yml`.
-- **Photo:** put it in `static/` and set `photo:` in `site.yml` (otherwise the initials are shown).
+- **CV:** replace `static/cv.pdf`.
+- **Availability line:** `status:` in `site.yml` (empty hides it).
 - **Colours and fonts:** variables at the top of `static/css/style.css`.
 
 ## Deployment

@@ -1,17 +1,15 @@
 # ---------------------------------------------------------------------------
-# Site identity. Everything on the home page and in the sidebar comes from here.
+# Site identity. Everything on the home page and in the header comes from here.
 # Edit, then run `make build` (or just push: GitHub Actions rebuilds the site).
 # ---------------------------------------------------------------------------
 
 name: Gauthier Barre
-# One or two short lines under the name in the sidebar.
-tagline:
-  - Quantitative finance
-  - Research · systematic strategies
-# Optional photo: put the file in static/ and give its name here (e.g. photo.jpg).
-# Without a photo the sidebar shows the initials below.
-photo:
-initials: GB
+# Portrait shown on the home page (file in static/, square, ~480 px). Leave empty to hide.
+photo: photo.jpg
+# Short line under the name on the home page.
+headline: École Polytechnique & ENSAE (M2 AI MaQI) · Télécom Paris
+# Optional status line (availability), shown under the headline. Leave empty to hide.
+status:
 
 url: https://gauthierbarre.github.io/portefolio/   # public URL, with trailing slash
 base_path: /portefolio/                            # sub-path on GitHub Pages (used by 404.html)
@@ -21,11 +19,14 @@ description: >-
   costs, point-in-time data and S&P 500 composition reconstruction and prediction.
 
 # Markdown allowed.
-about: >-
-  I work on empirical questions in US equities, with an emphasis on getting the data
+about: |
+  I am a student in the AI for Markets and Quantitative Investment master (AI MaQI) at
+  École Polytechnique and ENSAE, after the engineering programme of Télécom Paris
+  (stochastic modelling and scientific computing).
+
+  My projects are empirical questions on US equities, with an emphasis on getting the data
   right before drawing conclusions: point-in-time universes, survivorship-free histories,
-  realistic transaction costs and honest baselines. I am looking for opportunities in
-  quantitative research and quantitative development.
+  realistic transaction costs and honest baselines.
 
 keywords:
   - Cross-sectional signals
@@ -34,17 +35,19 @@ keywords:
   - Index methodology
   - Backtesting
   - Machine learning in finance
+  - Stochastic processes
+  - Market making
 
 # Shown in the "Contact" block of the home page. Leave empty to hide.
-email:            # e.g. "gauthier dot barre at example dot com" (written out to deter scrapers)
+email: gauthier.barre@polytechnique.edu
 
-# Sidebar icons. Supported icons: github, linkedin, x, email, scholar.
+# Links shown in the header and the Contact block. Supported icons: github, linkedin, x, email, scholar.
 social:
-  - { icon: github, url: "https://github.com/gauthierbarre" }
-  # - { icon: linkedin, url: "https://www.linkedin.com/in/..." }
+  - { icon: github, label: GitHub, url: "https://github.com/gauthierbarre" }
+  - { icon: linkedin, label: LinkedIn, url: "https://www.linkedin.com/in/gauthier-barre-a776a5327" }
 
-# Optional CV: drop a PDF in static/ (e.g. static/cv.pdf) and set its name here.
-cv:
+# CV PDF in static/, offered for download on the CV page (content/cv.yml).
+cv: cv.pdf
 
 # Number of entries in the "Latest" block of the home page.
 latest: 4

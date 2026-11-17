@@ -13,45 +13,32 @@
   <link rel="icon" href="{{ root }}favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ root }}css/style.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <div class="layout">
-    <aside class="sidebar">
-      <a class="identity" href="{{ root }}index.html">
-        {% if site.photo %}
-        <img class="avatar" src="{{ root }}{{ site.photo }}" alt="" width="128" height="128">
-        {% else %}
-        <span class="avatar avatar-initials" aria-hidden="true">{{ site.initials }}</span>
-        {% endif %}
-        <span class="name">{{ site.name }}</span>
-      </a>
-      {% if site.tagline %}
-      <p class="tagline">{% for line in site.tagline %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}</p>
-      {% endif %}
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="{{ root }}index.html"{% if active == "home" %} aria-current="page"{% endif %}>{{ site.name }}</a>
       <nav aria-label="Main">
         <ul class="nav">
           {% for label, href, key in nav %}
           <li><a href="{{ root }}{{ href }}"{% if key == active %} aria-current="page"{% endif %}>{{ label }}</a></li>
           {% endfor %}
+          {% for s in site.social %}
+          <li class="nav-icon"><a href="{{ s.url }}" rel="me noopener" target="_blank" aria-label="{{ s.label or (s.icon | capitalize) }}">{% include "icons/" ~ s.icon ~ ".svg" %}</a></li>
+          {% endfor %}
         </ul>
       </nav>
-      {% if site.social %}
-      <ul class="social">
-        {% for s in site.social %}
-        <li><a href="{{ s.url }}" rel="me noopener" target="_blank" aria-label="{{ s.icon | capitalize }}">{% include "icons/" ~ s.icon ~ ".svg" %}</a></li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-    </aside>
+    </div>
+  </header>
 
-    <main id="main" class="content">
-      {% block content %}{% endblock %}
-      <footer class="footer">© {{ year }} {{ site.name }}</footer>
-    </main>
-  </div>
+  <main id="main" class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="wrap footer">© {{ year }} {{ site.name }}</footer>
   {% block scripts %}{% endblock %}
 </body>
 </html>

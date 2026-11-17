@@ -5,7 +5,7 @@ Sources
   site.yml                          identity, about, keywords, social links
   content/projects/<slug>/index.md  one project = front matter + Markdown + its figures
   content/notes.yml                 short technical notes
-  static/                           copied as-is (css, js, favicon, cv, photo)
+  static/                           copied as-is (css, js, favicon, cv.pdf)
   templates/                        Jinja2 templates
 
 Usage
@@ -218,13 +218,10 @@ def load_site() -> dict:
     for key in ("name", "url", "base_path"):
         if not site.get(key):
             err(f"site.yml: '{key}' is required")
-    site.setdefault("tagline", [])
-    if isinstance(site["tagline"], str):
-        site["tagline"] = [site["tagline"]]
     site["about_html"] = render_markdown(site.get("about") or "")
     site["social"] = site.get("social") or []
     site["keywords"] = site.get("keywords") or []
-    for key in ("photo", "cv"):
+    for key in ("cv", "photo"):
         if site.get(key) and not (STATIC / site[key]).exists():
             err(f"site.yml: {key} '{site[key]}' not found in static/")
     return site
@@ -337,7 +334,7 @@ def build(include_drafts: bool = False) -> None:
     if has_notes:
         nav.append(("Notes", "notes.html", "notes"))
     if site.get("cv"):
-        nav.append(("CV", site["cv"], "cv"))
+        nav.append(("CV", "cv.html", "cv"))
 
     def render(template: str, dest: str, **ctx) -> None:
         depth = dest.count("/")
@@ -350,7 +347,9 @@ def build(include_drafts: bool = False) -> None:
     latest = sorted(projects + notes, key=lambda e: e["updated"] or e["date"] or dt.date.min,
                     reverse=True)[: int(site.get("latest") or 4)]
 
-    render("home.html", "index.html", active="home", latest=latest, title=None)
+    render("home.html", "index.html", active="home", latest=latest, projects=projects, notes=notes, title=None)
+    if site.get("cv"):
+        render("cv.html", "cv.html", active="cv", title="CV")
     render("projects.html", "projects.html", active="projects", projects=projects, title="Projects")
     if has_notes:
         render("notes.html", "notes.html", active="notes", notes=notes, title="Notes")
@@ -364,7 +363,7 @@ def build(include_drafts: bool = False) -> None:
                 (shutil.copytree if f.is_dir() else shutil.copy2)(f, dest_dir / f.name)
         render("project.html", f"projects/{p['slug']}/index.html", active="projects", p=p, title=p["title"])
 
-    urls = ["", "projects.html"] + (["notes.html"] if has_notes else []) + [p["url"] for p in projects]
+    urls = ["", "projects.html"] + (["notes.html"] if has_notes else []) + (["cv.html"] if site.get("cv") else []) + [p["url"] for p in projects]
     sitemap = "\n".join(f"  <url><loc>{html.escape(site['url'] + u)}</loc></url>" for u in urls)
     (OUT / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'

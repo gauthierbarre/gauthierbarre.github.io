@@ -1,0 +1,10 @@
+{# Project card. Expects `p` and `root`. #}
+<article class="card">
+  <h3 class="card-title"><a href="{{ root }}{{ p.url }}">{{ p.title }}</a>{% if p.draft %} <span class="draft">draft</span>{% endif %}</h3>
+  <p class="card-summary">{{ p.summary }}{% if p.context %} {{ p.context }}, {{ p.date.year }}.{% endif %}</p>
+  <p class="card-links">
+    <a href="{{ root }}{{ p.url }}">Read</a>
+    {% if p.repo %}<a href="{{ p.repo }}" target="_blank" rel="noopener">Code ↗</a>{% endif %}
+    {% if p.paper %}<a href="{{ p.paper }}" target="_blank" rel="noopener">Paper ↗</a>{% endif %}
+  </p>
+</article>

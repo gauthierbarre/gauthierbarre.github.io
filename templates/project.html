@@ -15,11 +15,10 @@
 {% block content %}
   <article class="article">
     <header class="article-head">
-      <p class="entry-label"><code>{{ p.label }}</code>{% if p.draft %} <span class="draft">draft</span>{% endif %}</p>
+      {% if p.draft %}<p><span class="draft">draft</span></p>{% endif %}
       <h1>{{ p.title }}</h1>
       <p class="entry-meta">
-        Posted {{ p.date | date }}{% if p.updated %} · updated {{ p.updated | date }}{% endif %}
-        {% if p.context %} · {{ p.context }}{% endif %}{% if p.period %} · {{ p.period }}{% endif %}
+        {{ p.date | date }}{% if p.updated %} · updated {{ p.updated | date }}{% endif %}{% if p.context %} · {{ p.context }}{% endif %}
       </p>
       {% if p.repo or p.paper %}
       <p class="article-links">
@@ -42,12 +41,6 @@
     <div class="prose">
       {{ p.html | safe }}
     </div>
-
-    {% if p.tags %}
-    <ul class="tags" aria-label="Tools">
-      {% for t in p.tags %}<li>{{ t }}</li>{% endfor %}
-    </ul>
-    {% endif %}
 
     <p class="back"><a href="{{ root }}projects.html">← All projects</a></p>
   </article>
