@@ -13,7 +13,20 @@
   {% endif %}
 {% endblock %}
 {% block content %}
-  <article class="article">
+  <article class="article split">
+    <aside class="split-side">
+      {% if p.toc | length > 1 %}
+      <nav class="toc" aria-label="Contents">
+        <p class="toc-label">Contents</p>
+        <ol>
+          {% for s in p.toc %}
+          <li><a href="#{{ s.id }}"><span class="toc-n">{{ s.n }}</span><span class="toc-t">{{ s.title | safe }}</span></a></li>
+          {% endfor %}
+        </ol>
+      </nav>
+      {% endif %}
+    </aside>
+    <div class="split-main">
     <header class="article-head">
       {% if p.draft %}<p><span class="draft">draft</span></p>{% endif %}
       <h1>{{ p.title }}</h1>
@@ -28,21 +41,12 @@
       {% endif %}
     </header>
 
-    {% if p.toc | length > 1 %}
-    <nav class="toc" aria-label="Contents">
-      <ol>
-        {% for s in p.toc %}
-        <li><a href="#{{ s.id }}"><span class="toc-n">{{ s.n }}</span><span class="toc-t">{{ s.title | safe }}</span><span class="toc-s">{{ s.sub | safe }}</span></a></li>
-        {% endfor %}
-      </ol>
-    </nav>
-    {% endif %}
-
     <div class="prose">
       {{ p.html | safe }}
     </div>
 
     <p class="back"><a href="{{ root }}projects.html">← All projects</a></p>
+    </div>
   </article>
 
   <dialog class="lightbox" id="lightbox" aria-label="Enlarged figure">

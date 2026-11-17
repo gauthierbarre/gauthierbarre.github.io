@@ -13,7 +13,9 @@ push to `main`.
 ```
 site.yml                          name, headline, status, about, keywords, email, links, CV PDF
 content/projects/<slug>/index.md  one project: front matter + sections + figures in the same folder
-content/notes.yml                 short technical notes (links to notebook sections, PDFs, …)
+content/hands-on/<slug>/index.md  Hands-On: a README-style page, optionally rendering a .ipynb
+content/notes/<slug>/index.md     Notes: short articles, comments on press articles, opinion
+content/<section>/links.yml       optional entries that only link elsewhere
 static/                           copied as-is: css/, js/, favicon.svg, cv.pdf
 templates/                        page layouts (base, home, projects, project, notes, 404) and icons
 scripts/build.py                  builds _site/ and validates it
@@ -21,8 +23,9 @@ scripts/new_project.py            scaffolds a new project
 .github/workflows/deploy.yml      build on push/PR, deploy main to GitHub Pages
 ```
 
-Pages: **Home** (About, project cards, Contact) · **Projects** · one page per project with a
-numbered table of contents · **Notes** · **CV** (the PDF shown in the page, with a download button).
+Pages: **Home** (About, Projects, latest Hands-On and Notes, Contact) · **Projects** · one page per
+project with a contents column · **Hands-On** (notebooks, READMEs) · **Notes** (articles, opinion) · **CV** (the PDF shown in the page, with a
+download button). On wide screens every page uses a label column on the left and content on the right.
 
 ## Commands
 
@@ -31,6 +34,8 @@ make install                      # once: .venv + dependencies
 make serve                        # build with drafts and serve on http://localhost:8000
 make build                        # production build into _site/ (what CI runs)
 make new SLUG=my-project TITLE='Does X beat Y?' REPO=https://github.com/gauthierbarre/my-project
+make hands-on SLUG=my-entry TITLE='…' NB=~/path/to/analysis.ipynb   # Hands-On entry, NB optional
+make note SLUG=my-note TITLE='…' URL=https://press-article           # Notes entry, URL optional
 ```
 
 ## Add a project
@@ -65,10 +70,31 @@ make new SLUG=my-project TITLE='Does X beat Y?' REPO=https://github.com/gauthier
 - Tables, lists, code blocks and footnotes are standard Markdown.
 - Only publish numbers that appear in the project's README or executed notebooks.
 
+## Add a Hands-On entry (notebook / README, lighter than a project)
+
+1. `make hands-on SLUG=my-entry TITLE='…' NB=path/to/file.ipynb` creates
+   `content/hands-on/my-entry/index.md` (draft) and copies the notebook next to it. Without `NB`,
+   write the page in Markdown (paste a README).
+2. Write a few lines of context, set `topic` and `summary`, delete `draft: true`.
+3. The notebook is rendered below the text: Markdown cells (with LaTeX), code, printed output,
+   tables and figures. `hide_code: true` shows only text and outputs.
+4. Make sure the notebook's outputs contain nothing licensed (raw data tables) before publishing.
+
+## Add a Note (article, comment on the press, opinion)
+
+1. `make note SLUG=my-note TITLE='…' URL=https://…` creates `content/notes/my-note/index.md` (draft).
+   With `URL`, the note comments a press article: fill `press.title`, `press.outlet`, `press.date`;
+   it is shown as a card under the title, linking to the article.
+2. Write the text in Markdown: summarise the article in your own words (no long quotes), then your view.
+3. Delete `draft: true`, build, push.
+
+Hands-On and Notes appear in the menu and on the home page once they have a published entry. Their
+names are `hands_on_title` and `notes_title` in `site.yml`. An entry that only links elsewhere can go
+in `content/<section>/links.yml` (fields: date, title, url, topic, summary, source).
+
 ## Other edits
 
 - **Home page text, keywords, links:** `site.yml`.
-- **Note:** add an entry to `content/notes.yml`.
 - **CV:** replace `static/cv.pdf`.
 - **Availability line:** `status:` in `site.yml` (empty hides it).
 - **Colours and fonts:** variables at the top of `static/css/style.css`.

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-  <header class="page-head">
-    <h1>Projects</h1>
-  </header>
-  <div class="cards">
-    {% for p in projects %}{% include "_card.html" %}{% else %}<p>No project yet.</p>{% endfor %}
-  </div>
+  <section class="page split">
+    <h1 class="split-side page-title">Projects</h1>
+    <div class="split-main entries">
+      {% for p in projects %}{% include "_card.html" %}{% else %}<p>No project yet.</p>{% endfor %}
+    </div>
+  </section>
 {% endblock %}

@@ -8,32 +8,46 @@
   </script>
 {% endblock %}
 {% block content %}
-  <section class="hero">
-    {% if site.photo %}<img class="portrait" src="{{ site.photo }}" alt="Portrait of {{ site.name }}" width="480" height="480">{% endif %}
-    <div>
+  <section class="hero split">
+    <div class="split-side">
+      {% if site.photo %}<img class="portrait" src="{{ site.photo }}" alt="Portrait of {{ site.name }}" width="480" height="480">{% endif %}
+    </div>
+    <div class="split-main">
       <h1>{{ site.name }}</h1>
       {% if site.headline %}<p class="headline">{{ site.headline }}</p>{% endif %}
       {% if site.status %}<p class="status">{{ site.status_html | safe }}</p>{% endif %}
     </div>
   </section>
 
-  <section class="section" aria-labelledby="about">
-    <h2 class="section-title" id="about">About</h2>
-    <div class="prose">{{ site.about_html | safe }}</div>
+  <section class="section split" aria-labelledby="about">
+    <h2 class="split-side section-title" id="about">About</h2>
+    <div class="split-main prose prose-justify">{{ site.about_html | safe }}</div>
   </section>
 
   {% if projects %}
-  <section class="section" aria-labelledby="projects">
-    <h2 class="section-title" id="projects">Projects</h2>
-    <div class="cards">
+  <section class="section split" aria-labelledby="projects">
+    <h2 class="split-side section-title" id="projects">Projects</h2>
+    <div class="split-main entries">
       {% for p in projects %}{% include "_card.html" %}{% endfor %}
     </div>
   </section>
   {% endif %}
 
-  <section class="section" aria-labelledby="contact">
-    <h2 class="section-title" id="contact">Contact</h2>
-    <p class="contact-line">
+  {% for sec in sections if sec.entries %}
+  <section class="section split" aria-labelledby="{{ sec.dir }}">
+    <h2 class="split-side section-title" id="{{ sec.dir }}">{{ sec.title }}</h2>
+    <div class="split-main">
+      <ul class="compact">
+        {% for n in sec.entries[:4] %}{% include "_note.html" %}{% endfor %}
+      </ul>
+      {% if sec.entries | length > 4 %}<p class="more"><a href="{{ sec.url }}">All {{ sec.title }} →</a></p>{% endif %}
+    </div>
+  </section>
+  {% endfor %}
+
+  <section class="section split" aria-labelledby="contact">
+    <h2 class="split-side section-title" id="contact">Contact</h2>
+    <p class="split-main contact-line">
       {% if site.email %}<a href="mailto:{{ site.email }}">{{ site.email }}</a>{% endif %}
       {% for s in site.social %}<a href="{{ s.url }}" rel="me noopener" target="_blank">{{ s.label or (s.icon | capitalize) }}</a>{% endfor %}
     </p>

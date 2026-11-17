@@ -50,5 +50,6 @@ social:
 # CV PDF in static/, offered for download on the CV page (content/cv.yml).
 cv: cv.pdf
 
-# Number of entries in the "Latest" block of the home page.
-latest: 4
+# Lighter sections. Each appears in the menu and on the home page once it has an entry.
+hands_on_title: Hands-On      # notebooks, READMEs, experiments  → content/hands-on/
+notes_title: Notes            # articles, comments on the press, opinion → content/notes/

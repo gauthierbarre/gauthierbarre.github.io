@@ -4,7 +4,9 @@
 Sources
   site.yml                          identity, about, keywords, social links
   content/projects/<slug>/index.md  one project = front matter + Markdown + its figures
-  content/notes.yml                 short technical notes
+  content/hands-on/<slug>/index.md  Hands-On: a README-style page, optionally rendering a .ipynb
+  content/notes/<slug>/index.md     Notes: short articles, comments on press articles, opinion
+  content/<section>/links.yml       optional entries that only link elsewhere
   static/                           copied as-is (css, js, favicon, cv.pdf)
   templates/                        Jinja2 templates
 
@@ -36,6 +38,11 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "_site"
 CONTENT = ROOT / "content"
 PROJECTS = CONTENT / "projects"
+# Lighter sections. key: (content folder, URL folder, default title, one-line description)
+COLLECTIONS = {
+    "hands_on": ("hands-on", "hands-on", "Hands-On", "Notebooks, READMEs and experiments — lighter than a project."),
+    "notes": ("notes", "notes", "Notes", "Short articles: comments on the news and my view on markets and quant research."),
+}
 STATIC = ROOT / "static"
 TEMPLATES = ROOT / "templates"
 
@@ -279,19 +286,99 @@ def load_projects(include_drafts: bool) -> list[dict]:
     return projects
 
 
-def load_notes() -> list[dict]:
-    path = CONTENT / "notes.yml"
-    if not path.exists():
-        return []
-    notes = yaml.safe_load(path.read_text(encoding="utf-8")) or []
+def render_notebook(path: Path, out_dir: Path, slug: str, hide_code: bool, where: str) -> str:
+    """Render a Jupyter notebook to HTML without nbconvert: Markdown cells, code, text, images, HTML tables.
+
+    Images are written next to the page (nb-<n>.png) instead of being inlined as base64.
+    """
+    import base64
+    import json
+
+    try:
+        nb = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        err(f"{where}: cannot read notebook '{path.name}': {e}")
+        return ""
+    lang = (nb.get("metadata", {}).get("kernelspec", {}) or {}).get("language", "python")
+    parts, n_img = [], 0
+    src = lambda c: "".join(c) if isinstance(c, list) else (c or "")
+    for cell in nb.get("cells", []):
+        kind, text = cell.get("cell_type"), src(cell.get("source"))
+        if kind == "markdown":
+            body, stash = protect_math(text)
+            parts.append(f'<div class="nb-md">{restore_math(render_markdown(body), stash)}</div>')
+        elif kind == "code":
+            if text.strip() and not hide_code:
+                parts.append(f'<pre class="nb-in"><code class="language-{lang}">{html.escape(text)}</code></pre>')
+            for o in cell.get("outputs", []):
+                t = o.get("output_type")
+                if t == "stream":
+                    parts.append(f'<pre class="nb-out">{html.escape(src(o.get("text")))}</pre>')
+                elif t == "error":
+                    tb = re.sub(r"\x1b\[[0-9;]*m", "", "\n".join(o.get("traceback", [])))
+                    parts.append(f'<pre class="nb-out nb-err">{html.escape(tb)}</pre>')
+                elif t in ("display_data", "execute_result"):
+                    data = o.get("data", {})
+                    img = next((k for k in ("image/png", "image/jpeg") if k in data), None)
+                    if img:
+                        n_img += 1
+                        name = f"nb-{n_img}.{'png' if img == 'image/png' else 'jpg'}"
+                        out_dir.mkdir(parents=True, exist_ok=True)
+                        (out_dir / name).write_bytes(base64.b64decode(src(data[img])))
+                        parts.append(f'<figure class="nb-fig"><img src="{name}" alt="Notebook output {n_img}" loading="lazy"></figure>')
+                    elif "image/svg+xml" in data:
+                        parts.append(f'<figure class="nb-fig">{src(data["image/svg+xml"])}</figure>')
+                    elif "text/html" in data:
+                        parts.append(f'<div class="nb-html table-wrap">{src(data["text/html"])}</div>')
+                    elif "text/markdown" in data:
+                        parts.append(f'<div class="nb-md">{render_markdown(src(data["text/markdown"]))}</div>')
+                    elif "text/plain" in data:
+                        parts.append(f'<pre class="nb-out">{html.escape(src(data["text/plain"]))}</pre>')
+    return "\n".join(parts)
+
+
+def load_collection(key: str, include_drafts: bool) -> list[dict]:
+    """Entries of a lighter section: local Markdown pages (+ optional notebook) and external links."""
+    folder_name, url_dir = COLLECTIONS[key][:2]
+    folder = CONTENT / folder_name
     out = []
-    for i, n in enumerate(notes, 1):
-        where = f"content/notes.yml entry {i}"
+    for md in sorted(folder.glob("*/index.md")):
+        slug = md.parent.name
+        where = f"content/{folder_name}/{slug}/index.md"
+        meta, body = split_front_matter(md.read_text(encoding="utf-8"), where)
+        if meta.get("draft") and not include_drafts:
+            continue
+        for f in ("title", "date"):
+            if not meta.get(f):
+                err(f"{where}: front matter field '{f}' is required")
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", slug):
+            err(f"{where}: folder name must be lowercase letters, digits and dashes")
+        body, stash = protect_math(body)
+        body_html = restore_math(wrap_tables(figures(render_markdown(body), md.parent, where)), stash)
+        nb_file = meta.get("notebook")
+        if nb_file and not (md.parent / nb_file).exists():
+            err(f"{where}: notebook '{nb_file}' not found next to index.md")
+            nb_file = None
+        press = meta.get("press") or {}
+        if press and not press.get("url"):
+            err(f"{where}: 'press' needs a 'url'")
+        out.append({
+            "slug": slug, "url": f"{url_dir}/{slug}/", "external": False, "section": key,
+            "title": meta.get("title", slug), "summary": meta.get("summary", ""),
+            "topic": meta.get("topic", ""), "date": to_date(meta.get("date"), where),
+            "updated": to_date(meta.get("updated"), where), "source": meta.get("source", ""),
+            "repo": meta.get("repo", ""), "press": press, "draft": bool(meta.get("draft")),
+            "hide_code": bool(meta.get("hide_code")), "notebook": nb_file,
+            "html": body_html, "dir": md.parent,
+        })
+    links = folder / "links.yml"
+    for i, n in enumerate((yaml.safe_load(links.read_text(encoding="utf-8")) or []) if links.exists() else [], 1):
+        where = f"content/{folder_name}/links.yml entry {i}"
         for f in ("title", "url", "date"):
             if not n.get(f):
                 err(f"{where}: '{f}' is required")
-        out.append({**n, "kind": "Note", "date": to_date(n.get("date"), where),
-                    "updated": None, "external": bool(re.match(r"^https?://", str(n.get("url", ""))))})
+        out.append({**n, "section": key, "date": to_date(n.get("date"), where), "updated": None,
+                    "external": bool(re.match(r"^https?://", str(n.get("url", ""))))})
     out.sort(key=lambda n: n["date"] or dt.date.min, reverse=True)
     return out
 
@@ -317,7 +404,7 @@ def build(include_drafts: bool = False) -> None:
     errors.clear()
     site = load_site()
     projects = load_projects(include_drafts)
-    notes = load_notes()
+    collections = {k: load_collection(k, include_drafts) for k in COLLECTIONS}
     if errors:
         raise BuildError()
 
@@ -333,10 +420,15 @@ def build(include_drafts: bool = False) -> None:
     today = dt.date.today()
     # Cache-busting: ?v=<content hash> on css/js, so a redeploy is picked up at once.
     asset_v = hashlib.sha1(b"".join(f.read_bytes() for f in sorted(STATIC.glob("*/*.*")) if f.suffix in (".css", ".js"))).hexdigest()[:8]
-    has_notes = bool(notes)
+    sections = []
+    for key, (_, url_dir, default_title, blurb) in COLLECTIONS.items():
+        sections.append({"key": key, "url": f"{url_dir}/", "dir": url_dir, "entries": collections[key],
+                         "title": site.get(f"{key}_title") or default_title,
+                         "blurb": site.get(f"{key}_blurb") or blurb})
     nav = [("Home", "index.html", "home"), ("Projects", "projects.html", "projects")]
-    if has_notes:
-        nav.append(("Notes", "notes.html", "notes"))
+    for sec in sections:
+        if sec["entries"]:
+            nav.append((sec["title"], sec["url"], sec["key"]))
     if site.get("cv"):
         nav.append(("CV", "cv.html", "cv"))
 
@@ -348,15 +440,26 @@ def build(include_drafts: bool = False) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(page, encoding="utf-8")
 
-    latest = sorted(projects + notes, key=lambda e: e["updated"] or e["date"] or dt.date.min,
-                    reverse=True)[: int(site.get("latest") or 4)]
-
-    render("home.html", "index.html", active="home", latest=latest, projects=projects, notes=notes, title=None)
+    render("home.html", "index.html", active="home", projects=projects, sections=sections, title=None)
     if site.get("cv"):
         render("cv.html", "cv.html", active="cv", title="CV")
     render("projects.html", "projects.html", active="projects", projects=projects, title="Projects")
-    if has_notes:
-        render("notes.html", "notes.html", active="notes", notes=notes, title="Notes")
+    for sec in sections:
+        if not sec["entries"]:
+            continue
+        render("collection.html", f"{sec['dir']}/index.html", active=sec["key"], sec=sec, title=sec["title"])
+        for n in sec["entries"]:
+            if n["external"] or "dir" not in n:
+                continue
+            dest_dir = OUT / sec["dir"] / n["slug"]
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            for f in n["dir"].iterdir():
+                if f.name != "index.md" and f.suffix != ".ipynb" and not f.name.startswith("."):
+                    (shutil.copytree if f.is_dir() else shutil.copy2)(f, dest_dir / f.name)
+            nb_html = render_notebook(n["dir"] / n["notebook"], dest_dir, n["slug"], n["hide_code"],
+                                      f"content/{COLLECTIONS[sec['key']][0]}/{n['slug']}") if n["notebook"] else ""
+            render("entry.html", f"{sec['dir']}/{n['slug']}/index.html", active=sec["key"], sec=sec, n=n,
+                   nb_html=nb_html, title=n["title"])
     render("404.html", "404.html", active="", title="Page not found")
 
     for p in projects:
@@ -367,7 +470,7 @@ def build(include_drafts: bool = False) -> None:
                 (shutil.copytree if f.is_dir() else shutil.copy2)(f, dest_dir / f.name)
         render("project.html", f"projects/{p['slug']}/index.html", active="projects", p=p, title=p["title"])
 
-    urls = ["", "projects.html"] + (["notes.html"] if has_notes else []) + (["cv.html"] if site.get("cv") else []) + [p["url"] for p in projects]
+    urls = ["", "projects.html"] + [u for sec in sections if sec["entries"] for u in [sec["url"]] + [n["url"] for n in sec["entries"] if not n["external"]]] + (["cv.html"] if site.get("cv") else []) + [p["url"] for p in projects]
     sitemap = "\n".join(f"  <url><loc>{html.escape(site['url'] + u)}</loc></url>" for u in urls)
     (OUT / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -377,7 +480,8 @@ def build(include_drafts: bool = False) -> None:
     check_internal_links(OUT)
     if errors:
         raise BuildError()
-    print(f"Built {len(projects)} project(s), {len(notes)} note(s) into {OUT.relative_to(ROOT)}/")
+    counts = ", ".join(f"{len(sec['entries'])} {sec['title']}" for sec in sections)
+    print(f"Built {len(projects)} project(s), {counts} into {OUT.relative_to(ROOT)}/")
 
 
 def serve(port: int) -> None:

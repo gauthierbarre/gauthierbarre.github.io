@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block description %}{{ n.summary or n.title }}{% endblock %}
+{% block head_extra %}
+  <link rel="canonical" href="{{ site.url }}{{ n.url }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.querySelector('.article'), {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], ignoredClasses: ['nb-in', 'nb-out']})"></script>
+{% endblock %}
+{% block content %}
+  <article class="article split">
+    <aside class="split-side">
+      <p class="side-note"><a href="{{ root }}{{ sec.url }}">← {{ sec.title }}</a></p>
+    </aside>
+    <div class="split-main">
+      <header class="article-head">
+        {% if n.topic %}<p class="note-topic">{{ n.topic }}</p>{% endif %}
+        <h1>{{ n.title }}{% if n.draft %} <span class="draft">draft</span>{% endif %}</h1>
+        <p class="entry-meta">{{ n.date | date }}{% if n.updated %} · updated {{ n.updated | date }}{% endif %}{% if n.source %} · {{ n.source }}{% endif %}</p>
+        {% if n.repo %}<p class="article-links"><a href="{{ n.repo }}" target="_blank" rel="noopener">Code ↗</a></p>{% endif %}
+        {% if n.press %}
+        <a class="press" href="{{ n.press.url }}" target="_blank" rel="noopener">
+          <span class="press-label">About the article</span>
+          <span class="press-title">{{ n.press.title or n.press.url }}</span>
+          {% if n.press.outlet or n.press.date %}<span class="press-meta">{{ n.press.outlet }}{% if n.press.outlet and n.press.date %} · {% endif %}{{ n.press.date or "" }} ↗</span>{% endif %}
+        </a>
+        {% endif %}
+      </header>
+      <div class="prose">
+        {{ n.html | safe }}
+        {% if nb_html %}<div class="nb">{{ nb_html | safe }}</div>{% endif %}
+      </div>
+    </div>
+  </article>
+  <dialog class="lightbox" id="lightbox" aria-label="Enlarged figure">
+    <button class="lightbox-close" type="button" aria-label="Close">×</button>
+    <img alt="">
+  </dialog>
+{% endblock %}
+{% block scripts %}<script src="{{ root }}js/main.js?v={{ v }}" defer></script>{% endblock %}

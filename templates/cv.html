@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% block description %}CV of {{ site.name }}.{% endblock %}
 {% block content %}
-  <header class="page-head page-head-row">
-    <h1>CV</h1>
-    <a class="btn" href="{{ site.cv }}" download>Download PDF</a>
-  </header>
-  <object class="pdf" data="{{ site.cv }}#toolbar=0&navpanes=0&view=FitH" type="application/pdf" aria-label="CV (PDF)">
-    <p>The PDF cannot be displayed here. <a href="{{ site.cv }}">Open the CV</a>.</p>
-  </object>
+  <section class="page split">
+    <div class="split-side">
+      <h1 class="page-title">CV</h1>
+      <p><a class="btn" href="{{ site.cv }}" download>Download PDF</a></p>
+    </div>
+    <div class="split-main">
+      <object class="pdf" data="{{ site.cv }}#toolbar=0&navpanes=0&view=FitH" type="application/pdf" aria-label="CV (PDF)">
+        <p>The PDF cannot be displayed here. <a href="{{ site.cv }}">Open the CV</a>.</p>
+      </object>
+    </div>
+  </section>
 {% endblock %}

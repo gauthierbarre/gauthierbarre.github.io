@@ -40,7 +40,8 @@ lowercase subtitle on the next line, a blank line, then the body. Front matter: 
 `context`, `period`, `repo`, `cover`, `tags`; `math: true` if formulas are needed. Remove
 `draft: true` only when the user wants it published.
 
-Optionally add 1–3 entries to `content/notes.yml` pointing at notebook sections worth reading.
+Optionally add a lighter Hands-On entry with `make hands-on SLUG=… NB=…` (renders the .ipynb; check no
+licensed data in outputs), or links in `content/hands-on/links.yml`.
 
 ## 4. Check
 
