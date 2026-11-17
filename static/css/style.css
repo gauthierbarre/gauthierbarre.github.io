@@ -122,8 +122,11 @@ code { font-family: var(--mono); font-size: .85em; }
 .note-topic { margin: 0 0 4px; font-family: var(--mono); font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .ext { font-size: .75em; color: var(--muted); }
 
-.nb { margin-top: 8px; }
 .nb-md { margin: 18px 0; }
+.article .prose .nb p, .article .prose .nb li { text-align: left; hyphens: manual; -webkit-hyphens: manual; overflow-wrap: anywhere; }
+.article .nb h1 { font-size: 1.35em; margin: 40px 0 8px; letter-spacing: -.01em; }
+.article .nb h2 { font-size: 1.15em; margin: 28px 0 8px; }
+.nb { margin-top: 40px; padding-top: 8px; border-top: 1px solid var(--rule); }
 .nb-in, .nb-out { margin: 10px 0; padding: 12px 16px; font-family: var(--mono); font-size: 13.5px; line-height: 1.55; overflow-x: auto; border-radius: 8px; white-space: pre; }
 .nb-in { background: var(--code-bg); border-left: 3px solid var(--rule); }
 .nb-out { background: transparent; border: 1px solid var(--rule); color: var(--text-2); }

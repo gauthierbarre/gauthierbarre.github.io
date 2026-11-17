@@ -325,7 +325,9 @@ def render_notebook(path: Path, out_dir: Path, slug: str, hide_code: bool, where
                         name = f"nb-{n_img}.{'png' if img == 'image/png' else 'jpg'}"
                         out_dir.mkdir(parents=True, exist_ok=True)
                         (out_dir / name).write_bytes(base64.b64decode(src(data[img])))
-                        parts.append(f'<figure class="nb-fig"><img src="{name}" alt="Notebook output {n_img}" loading="lazy"></figure>')
+                        titles = re.findall(r"""set_title\(\s*["']([^"']+)""", text) or re.findall(r"""plt\.title\(\s*["']([^"']+)""", text)
+                        alt = html.escape(" and ".join(titles) if titles else f"Notebook figure {n_img}")
+                        parts.append(f'<figure class="nb-fig"><img src="{name}" alt="{alt}" loading="lazy"></figure>')
                     elif "image/svg+xml" in data:
                         parts.append(f'<figure class="nb-fig">{src(data["image/svg+xml"])}</figure>')
                     elif "text/html" in data:
