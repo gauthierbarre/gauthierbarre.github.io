@@ -1,5 +1,5 @@
 ---
-title: "Does sincerity have the same meaning for Montaigne, Rousseau and Stendhal?"
+title: "Does sincerity have the same meaning for Montaigne, Rousseau and Stendhal in term of self representation?"
 summary: A short essay on sincerity in self-portrayal, and why the process matters more than the final portrait.
 date: 2026-11-17
 ---
