@@ -3,11 +3,10 @@ title: "Training an MLP in PyTorch, and when to stop"
 summary: A multi-layer perceptron written from scratch in PyTorch on the Dry Bean dataset, from preprocessing to early stopping.
 topic: Deep learning
 date: 2026-11-17
-source: "Télécom Paris · deep learning lab"
 notebook: Lab_MLP.ipynb
 ---
 
-A deep learning lab from Télécom Paris: train and evaluate a multi-layer perceptron for a
+Train and evaluate a multi-layer perceptron for a
 7-class classification problem on the public [Dry Bean dataset](https://archive.ics.uci.edu/dataset/602/dry+bean+dataset)
 (13,611 beans, 16 shape features). I wrote every line of code myself, using AI only to ask
 questions and understand concepts.

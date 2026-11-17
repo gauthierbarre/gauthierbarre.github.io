@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block description %}{{ n.summary or n.title }} — rendered notebook.{% endblock %}
+{% block head_extra %}
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="{{ site.url }}{{ n.url }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.querySelector('.nb'), {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], ignoredTags: ['pre', 'code']})"></script>
+{% endblock %}
+{% block content %}
+  <article class="article split nb-page">
+    <aside class="split-side">
+      <p class="side-note"><a href="../">← Summary</a></p>
+      {% if nb_toc %}
+      <nav class="toc" aria-label="Notebook contents">
+        <p class="toc-label">Notebook</p>
+        <ol>
+          {% for t in nb_toc %}
+          <li class="toc-l{{ t.level }}"><a href="#{{ t.id }}"><span class="toc-t">{{ t.title }}</span></a></li>
+          {% endfor %}
+        </ol>
+      </nav>
+      {% endif %}
+    </aside>
+    <div class="split-main">
+      <header class="nb-head">
+        <p class="note-topic">Notebook</p>
+        <h1>{{ n.title }}</h1>
+        <div class="nb-toolbar">
+          <button type="button" class="btn btn-ghost" data-nb-toggle>Show all code</button>
+          <a class="btn btn-ghost" href="../{{ n.notebook }}" download>Download .ipynb</a>
+        </div>
+      </header>
+      <div class="prose nb">
+        {{ nb_html | safe }}
+      </div>
+      <p class="back"><a href="../">← Back to the summary</a></p>
+    </div>
+  </article>
+  <dialog class="lightbox" id="lightbox" aria-label="Enlarged figure">
+    <button class="lightbox-close" type="button" aria-label="Close">×</button>
+    <img alt="">
+  </dialog>
+{% endblock %}
+{% block scripts %}<script src="{{ root }}js/main.js?v={{ v }}" defer></script>{% endblock %}

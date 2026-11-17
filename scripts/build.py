@@ -287,10 +287,12 @@ def load_projects(include_drafts: bool) -> list[dict]:
     return projects
 
 
-def render_notebook(path: Path, out_dir: Path, slug: str, hide_code: bool, where: str) -> str:
-    """Render a Jupyter notebook to HTML without nbconvert: Markdown cells, code, text, images, HTML tables.
+def render_notebook(path: Path, out_dir: Path, hide_code: bool, where: str) -> tuple[str, list[dict]]:
+    """Render a Jupyter notebook to readable HTML without nbconvert.
 
-    Images are written next to the page (nb-<n>.png) instead of being inlined as base64.
+    Returns (html, toc). Markdown cells become prose, with their headings anchored for the
+    table of contents. Code cells are collapsible (short ones open, long ones folded); long
+    printed outputs scroll; figures are written next to the page (nb-<n>.png).
     """
     import base64
     import json
@@ -299,25 +301,39 @@ def render_notebook(path: Path, out_dir: Path, slug: str, hide_code: bool, where
         nb = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as e:
         err(f"{where}: cannot read notebook '{path.name}': {e}")
-        return ""
+        return "", []
     lang = (nb.get("metadata", {}).get("kernelspec", {}) or {}).get("language", "python")
-    parts, n_img = [], 0
+    parts, toc, used, n_img = [], [], set(), 0
     src = lambda c: "".join(c) if isinstance(c, list) else (c or "")
+
+    def anchor(m):
+        level, inner = m.group(1), m.group(2)
+        aid = slugify(inner)
+        while aid in used:
+            aid += "-1"
+        used.add(aid)
+        if level in ("1", "2"):
+            toc.append({"id": aid, "title": re.sub(r"<[^>]+>", "", inner), "level": int(level)})
+        return f'<h{level} id="{aid}">{inner}</h{level}>'
+
     for cell in nb.get("cells", []):
         kind, text = cell.get("cell_type"), src(cell.get("source"))
-        if kind == "markdown":
+        if kind == "markdown" and text.strip():
+            # Jupyter accepts a list right after a paragraph line; Python-Markdown needs a blank line.
+            text = re.sub(r"(?m)^(?![ \t]*(?:[*+-]|\d+\.)[ \t])([^\n]*\S[^\n]*)\n(?=[ \t]{0,3}(?:[*+-]|\d+\.)[ \t])", r"\1\n\n", text)
             body, stash = protect_math(text)
-            parts.append(f'<div class="nb-md">{restore_math(render_markdown(body), stash)}</div>')
+            rendered = restore_math(render_markdown(body), stash)
+            rendered = re.sub(r"<h([1-6])>(.*?)</h\1>", anchor, rendered, flags=re.S)
+            parts.append(f'<div class="nb-md">{rendered}</div>')
         elif kind == "code":
-            if text.strip() and not hide_code:
-                parts.append(f'<pre class="nb-in"><code class="language-{lang}">{html.escape(text)}</code></pre>')
+            out = []
             for o in cell.get("outputs", []):
                 t = o.get("output_type")
                 if t == "stream":
-                    parts.append(f'<pre class="nb-out">{html.escape(src(o.get("text")))}</pre>')
+                    out.append(f'<pre class="nb-out">{html.escape(src(o.get("text")))}</pre>')
                 elif t == "error":
                     tb = re.sub(r"\x1b\[[0-9;]*m", "", "\n".join(o.get("traceback", [])))
-                    parts.append(f'<pre class="nb-out nb-err">{html.escape(tb)}</pre>')
+                    out.append(f'<pre class="nb-out nb-err">{html.escape(tb)}</pre>')
                 elif t in ("display_data", "execute_result"):
                     data = o.get("data", {})
                     img = next((k for k in ("image/png", "image/jpeg") if k in data), None)
@@ -328,16 +344,29 @@ def render_notebook(path: Path, out_dir: Path, slug: str, hide_code: bool, where
                         (out_dir / name).write_bytes(base64.b64decode(src(data[img])))
                         titles = re.findall(r"""set_title\(\s*["']([^"']+)""", text) or re.findall(r"""plt\.title\(\s*["']([^"']+)""", text)
                         alt = html.escape(" and ".join(titles) if titles else f"Notebook figure {n_img}")
-                        parts.append(f'<figure class="nb-fig"><img src="{name}" alt="{alt}" loading="lazy"></figure>')
+                        out.append(f'<figure class="nb-fig"><button class="zoomable" type="button" aria-label="Enlarge figure">'
+                                   f'<img src="{name}" alt="{alt}" loading="lazy"></button></figure>')
                     elif "image/svg+xml" in data:
-                        parts.append(f'<figure class="nb-fig">{src(data["image/svg+xml"])}</figure>')
+                        out.append(f'<figure class="nb-fig">{src(data["image/svg+xml"])}</figure>')
                     elif "text/html" in data:
-                        parts.append(f'<div class="nb-html table-wrap">{src(data["text/html"])}</div>')
+                        out.append(f'<div class="nb-html table-wrap">{src(data["text/html"])}</div>')
                     elif "text/markdown" in data:
-                        parts.append(f'<div class="nb-md">{render_markdown(src(data["text/markdown"]))}</div>')
+                        out.append(f'<div class="nb-md">{render_markdown(src(data["text/markdown"]))}</div>')
                     elif "text/plain" in data:
-                        parts.append(f'<pre class="nb-out">{html.escape(src(data["text/plain"]))}</pre>')
-    return "\n".join(parts)
+                        out.append(f'<pre class="nb-out">{html.escape(src(data["text/plain"]))}</pre>')
+            code = ""
+            if text.strip() and not hide_code:
+                lines = text.rstrip().count("\n") + 1
+                first = html.escape(next((l.strip() for l in text.splitlines() if l.strip()), ""))[:70]
+                count = cell.get("execution_count")
+                label = f'<span class="nb-n">[{count}]</span>' if count else '<span class="nb-n">[ ]</span>'
+                is_open = " open" if lines <= 8 else ""
+                code = (f'<details class="nb-code"{is_open}><summary>{label}<span class="nb-first">{first}</span>'
+                        f'<span class="nb-lines">{lines} line{"s" if lines > 1 else ""}</span></summary>'
+                        f'<pre class="nb-in"><code class="language-{lang}">{html.escape(text)}</code></pre></details>')
+            if code or out:
+                parts.append(f'<div class="nb-cell">{code}{"".join(out)}</div>')
+    return "\n".join(parts), toc
 
 
 def load_collection(key: str, include_drafts: bool) -> list[dict]:
@@ -414,6 +443,7 @@ def build(include_drafts: bool = False) -> None:
     env = Environment(loader=FileSystemLoader(TEMPLATES), autoescape=True,
                       trim_blocks=True, lstrip_blocks=True)
     env.filters["date"] = fmt_date
+    env.filters["month"] = lambda d: f"{d.strftime('%b')} {d.year}" if d else ""
 
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -460,10 +490,14 @@ def build(include_drafts: bool = False) -> None:
             for f in n["dir"].iterdir():
                 if f.name != "index.md" and f.suffix != ".ipynb" and not f.name.startswith("."):
                     (shutil.copytree if f.is_dir() else shutil.copy2)(f, dest_dir / f.name)
-            nb_html = render_notebook(n["dir"] / n["notebook"], dest_dir, n["slug"], n["hide_code"],
-                                      f"content/{COLLECTIONS[sec['key']][0]}/{n['slug']}") if n["notebook"] else ""
+            if n["notebook"]:
+                shutil.copy2(n["dir"] / n["notebook"], dest_dir / n["notebook"])   # for download
+                nb_html, nb_toc = render_notebook(n["dir"] / n["notebook"], dest_dir / "notebook", n["hide_code"],
+                                                  f"content/{COLLECTIONS[sec['key']][0]}/{n['slug']}")
+                render("notebook_view.html", f"{sec['dir']}/{n['slug']}/notebook/index.html", active=sec["key"],
+                       sec=sec, n=n, nb_html=nb_html, nb_toc=nb_toc, title=f"{n['title']} — notebook")
             render("entry.html", f"{sec['dir']}/{n['slug']}/index.html", active=sec["key"], sec=sec, n=n,
-                   nb_html=nb_html, title=n["title"])
+                   title=n["title"])
     render("404.html", "404.html", active="", title="Page not found")
 
     for p in projects:

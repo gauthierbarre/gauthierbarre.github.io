@@ -76,8 +76,9 @@ make note SLUG=my-note TITLE='…' URL=https://press-article           # Notes e
    `content/hands-on/my-entry/index.md` (draft) and copies the notebook next to it. Without `NB`,
    write the page in Markdown (paste a README).
 2. Write a few lines of context, set `topic` and `summary`, delete `draft: true`.
-3. The notebook is rendered below the text: Markdown cells (with LaTeX), code, printed output,
-   tables and figures. `hide_code: true` shows only text and outputs.
+3. The entry page shows the text as an abstract, with **View the notebook** (a separate, readable
+   page: contents column, foldable code cells, scrollable logs, zoomable figures) and **Download .ipynb**.
+   `hide_code: true` shows only text and outputs in the viewer.
 4. Make sure the notebook's outputs contain nothing licensed (raw data tables) before publishing.
 
 ## Add a Note (article, comment on the press, opinion)

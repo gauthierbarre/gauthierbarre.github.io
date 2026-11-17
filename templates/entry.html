@@ -16,8 +16,16 @@
       <header class="article-head">
         {% if n.topic %}<p class="note-topic">{{ n.topic }}</p>{% endif %}
         <h1>{{ n.title }}{% if n.draft %} <span class="draft">draft</span>{% endif %}</h1>
-        <p class="entry-meta">{{ n.date | date }}{% if n.updated %} · updated {{ n.updated | date }}{% endif %}{% if n.source %} · {{ n.source }}{% endif %}</p>
-        {% if n.repo %}<p class="article-links"><a href="{{ n.repo }}" target="_blank" rel="noopener">Code ↗</a></p>{% endif %}
+        <p class="entry-meta">{{ n.date | month }}{% if n.updated %} · updated {{ n.updated | month }}{% endif %}{% if n.source %} · {{ n.source }}{% endif %}</p>
+        {% if n.notebook or n.repo %}
+        <p class="actions">
+          {% if n.notebook %}
+          <a class="btn" href="notebook/">View the notebook →</a>
+          <a class="btn btn-ghost" href="{{ n.notebook }}" download>Download .ipynb</a>
+          {% endif %}
+          {% if n.repo %}<a class="btn btn-ghost" href="{{ n.repo }}" target="_blank" rel="noopener">Code ↗</a>{% endif %}
+        </p>
+        {% endif %}
         {% if n.press %}
         <a class="press" href="{{ n.press.url }}" target="_blank" rel="noopener">
           <span class="press-label">About the article</span>
@@ -27,8 +35,8 @@
         {% endif %}
       </header>
       <div class="prose">
+        {% if n.notebook %}<p class="toc-label">Abstract</p>{% endif %}
         {{ n.html | safe }}
-        {% if nb_html %}<div class="nb">{{ nb_html | safe }}</div>{% endif %}
       </div>
     </div>
   </article>
