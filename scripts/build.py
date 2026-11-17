@@ -19,6 +19,7 @@ internal links) instead of publishing a broken site.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import datetime as dt
 import html
 import re
@@ -330,6 +331,8 @@ def build(include_drafts: bool = False) -> None:
     (OUT / ".nojekyll").write_text("")
 
     today = dt.date.today()
+    # Cache-busting: ?v=<content hash> on css/js, so a redeploy is picked up at once.
+    asset_v = hashlib.sha1(b"".join(f.read_bytes() for f in sorted(STATIC.glob("*/*.*")) if f.suffix in (".css", ".js"))).hexdigest()[:8]
     has_notes = bool(notes)
     nav = [("Home", "index.html", "home"), ("Projects", "projects.html", "projects")]
     if has_notes:
@@ -340,7 +343,7 @@ def build(include_drafts: bool = False) -> None:
     def render(template: str, dest: str, **ctx) -> None:
         depth = dest.count("/")
         root = "../" * depth
-        page = env.get_template(template).render(site=site, nav=nav, root=root, year=today.year, **ctx)
+        page = env.get_template(template).render(site=site, nav=nav, root=root, year=today.year, v=asset_v, **ctx)
         path = OUT / dest
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(page, encoding="utf-8")
