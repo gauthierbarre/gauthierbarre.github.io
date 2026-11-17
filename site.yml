@@ -11,8 +11,8 @@ headline: École Polytechnique & ENSAE (AI for Markets and Quantitative Investme
 # Optional status line (availability), shown under the headline. Markdown allowed. Leave empty to hide.
 status: Looking for a quantitative research internship starting April 2027 — [get in touch](mailto:gauthier.barre@polytechnique.edu).
 
-url: https://gauthierbarre.github.io/portefolio/   # public URL, with trailing slash
-base_path: /portefolio/                            # sub-path on GitHub Pages (used by 404.html)
+url: https://gauthierbarre.github.io/              # public URL, with trailing slash
+base_path: /                                       # sub-path on GitHub Pages (used by 404.html)
 lang: en
 description: >-
   Gauthier Barre — quantitative research on US equities: systematic signals net of

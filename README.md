@@ -1,8 +1,8 @@
-# portefolio
+# gauthierbarre.github.io
 
 Personal portfolio of Gauthier Barre — quantitative finance, research and systematic strategies.
 
-**Live site:** https://gauthierbarre.github.io/portefolio/
+**Live site:** https://gauthierbarre.github.io/
 
 A small static site generator (Python + Markdown + Jinja2). Each project is one folder with a
 Markdown file and its figures; a GitHub Actions workflow builds and publishes the site on every
