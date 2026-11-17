@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  {% for sec in sections %}
+  <section class="{{ 'page' if loop.first else 'section' }} split" aria-labelledby="{{ sec.dir }}">
+    <div class="split-side">
+      <h{{ 1 if loop.first else 2 }} class="page-title" id="{{ sec.dir }}"><a class="plain" href="{{ root }}{{ sec.url }}">{{ sec.title }}</a></h{{ 1 if loop.first else 2 }}>
+      {% if sec.blurb %}<p class="side-note">{{ sec.blurb }}</p>{% endif %}
+    </div>
+    <div class="split-main">
+      {% if sec.entries %}
+      <ul class="compact">
+        {% for n in sec.entries %}{% include "_note.html" %}{% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted">Nothing published yet.</p>
+      {% endif %}
+    </div>
+  </section>
+  {% endfor %}
+{% endblock %}

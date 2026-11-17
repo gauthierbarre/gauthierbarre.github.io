@@ -40,7 +40,8 @@ CONTENT = ROOT / "content"
 PROJECTS = CONTENT / "projects"
 # Lighter sections. key: (content folder, URL folder, default title, one-line description)
 COLLECTIONS = {
-    "hands_on": ("hands-on", "hands-on", "Hands-On", "Notebooks, READMEs and experiments — lighter than a project."),
+    "hands_on": ("hands-on", "hands-on", "Hands-On",
+                 "Notebooks and experiments where I write every line of code myself, without AI-generated code."),
     "notes": ("notes", "notes", "Notes", "Short articles: comments on the news and my view on markets and quant research."),
 }
 STATIC = ROOT / "static"
@@ -427,12 +428,13 @@ def build(include_drafts: bool = False) -> None:
         sections.append({"key": key, "url": f"{url_dir}/", "dir": url_dir, "entries": collections[key],
                          "title": site.get(f"{key}_title") or default_title,
                          "blurb": site.get(f"{key}_blurb") or blurb})
-    nav = [("Home", "index.html", "home"), ("Projects", "projects.html", "projects")]
-    for sec in sections:
-        if sec["entries"]:
-            nav.append((sec["title"], sec["url"], sec["key"]))
+    # Menu items: (label, href, key, children). "Collection" groups the lighter sections in a dropdown.
+    collection_title = site.get("collection_title") or "Collection"
+    nav = [("Home", "index.html", "home", []), ("Projects", "projects.html", "projects", []),
+           (collection_title, "collection/", "collection",
+            [(sec["title"], sec["url"], sec["key"], []) for sec in sections])]
     if site.get("cv"):
-        nav.append(("CV", "cv.html", "cv"))
+        nav.append(("CV", "cv.html", "cv", []))
 
     def render(template: str, dest: str, **ctx) -> None:
         depth = dest.count("/")
@@ -446,9 +448,9 @@ def build(include_drafts: bool = False) -> None:
     if site.get("cv"):
         render("cv.html", "cv.html", active="cv", title="CV")
     render("projects.html", "projects.html", active="projects", projects=projects, title="Projects")
+    render("collection_index.html", "collection/index.html", active="collection", sections=sections,
+           title=collection_title)
     for sec in sections:
-        if not sec["entries"]:
-            continue
         render("collection.html", f"{sec['dir']}/index.html", active=sec["key"], sec=sec, title=sec["title"])
         for n in sec["entries"]:
             if n["external"] or "dir" not in n:
@@ -472,7 +474,7 @@ def build(include_drafts: bool = False) -> None:
                 (shutil.copytree if f.is_dir() else shutil.copy2)(f, dest_dir / f.name)
         render("project.html", f"projects/{p['slug']}/index.html", active="projects", p=p, title=p["title"])
 
-    urls = ["", "projects.html"] + [u for sec in sections if sec["entries"] for u in [sec["url"]] + [n["url"] for n in sec["entries"] if not n["external"]]] + (["cv.html"] if site.get("cv") else []) + [p["url"] for p in projects]
+    urls = ["", "projects.html"] + ["collection/"] + [u for sec in sections for u in [sec["url"]] + [n["url"] for n in sec["entries"] if not n["external"]]] + (["cv.html"] if site.get("cv") else []) + [p["url"] for p in projects]
     sitemap = "\n".join(f"  <url><loc>{html.escape(site['url'] + u)}</loc></url>" for u in urls)
     (OUT / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'

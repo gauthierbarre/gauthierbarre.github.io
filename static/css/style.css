@@ -68,6 +68,20 @@ code { font-family: var(--mono); font-size: .85em; }
 .nav a:hover { color: var(--text); background: var(--code-bg); }
 .nav a[aria-current="page"] { color: var(--text); font-weight: 600; }
 .nav-icon a { display: grid; place-items: center; padding: 8px; }
+.has-menu { position: relative; }
+.caret { font-size: .7em; margin-left: 2px; color: var(--muted); }
+.submenu {
+  list-style: none; margin: 0; padding: 6px; min-width: 170px;
+  position: absolute; top: 100%; right: 0; z-index: 20;
+  background: var(--bg); border: 1px solid var(--rule); border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .08);
+  opacity: 0; visibility: hidden; transform: translateY(4px); transition: opacity .12s, transform .12s, visibility .12s;
+}
+.has-menu:hover .submenu, .has-menu:focus-within .submenu { opacity: 1; visibility: visible; transform: none; }
+.submenu a { padding: 7px 12px; font-weight: 400; }
+.submenu a[aria-current="page"] { font-weight: 600; }
+a.plain { color: inherit; text-decoration: none; }
+a.plain:hover { text-decoration: underline; }
 
 /* ---------- Two-column grid ---------- */
 .split > * { min-width: 0; }
@@ -219,7 +233,9 @@ figcaption { margin-top: 8px; font-size: .8em; color: var(--muted); text-align: 
   .brand { width: 100%; text-align: center; }
   .nav { flex-wrap: wrap; justify-content: center; gap: 0; }
   .nav a { padding: 6px 7px; font-size: 14.5px; }
-  .nav-icon { display: none; }  /* GitHub / LinkedIn stay in Contact */
+  .nav-icon { display: none; }
+  .submenu { display: none; }  /* on phones, Collection opens its own page */
+  .caret { display: none; }  /* GitHub / LinkedIn stay in Contact */
   .prose-justify p, .article .prose p, .article .prose li { text-align: left; hyphens: manual; -webkit-hyphens: manual; }
   .pdf { height: 75vh; min-height: 420px; }
 }

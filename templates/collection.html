@@ -14,6 +14,8 @@
           {% if n.summary %}<p class="entry-summary">{{ n.summary }}</p>{% endif %}
           <p class="entry-links"><span class="muted">{{ n.date | date }}{% if n.press and n.press.outlet %} · on {{ n.press.outlet }}{% endif %}{% if n.source %} · {{ n.source }}{% endif %}</span></p>
         </li>
+        {% else %}
+        <li class="note"><p class="muted">Nothing published yet.</p></li>
         {% endfor %}
       </ul>
     </div>

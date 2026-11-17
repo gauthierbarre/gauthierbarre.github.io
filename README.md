@@ -88,8 +88,10 @@ make note SLUG=my-note TITLE='…' URL=https://press-article           # Notes e
 2. Write the text in Markdown: summarise the article in your own words (no long quotes), then your view.
 3. Delete `draft: true`, build, push.
 
-Hands-On and Notes appear in the menu and on the home page once they have a published entry. Their
-names are `hands_on_title` and `notes_title` in `site.yml`. An entry that only links elsewhere can go
+Hands-On and Notes sit under the **Collection** menu (a dropdown, and an overview page at `collection/`).
+On the home page they appear once they have a published entry. Their names are `collection_title`,
+`hands_on_title` and `notes_title` in `site.yml`; the one-line descriptions are `hands_on_blurb` and
+`notes_blurb` (defaults in `scripts/build.py`). An entry that only links elsewhere can go
 in `content/<section>/links.yml` (fields: date, title, url, topic, summary, source).
 
 ## Other edits

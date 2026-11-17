@@ -50,6 +50,7 @@ social:
 # CV PDF in static/, offered for download on the CV page (content/cv.yml).
 cv: cv.pdf
 
-# Lighter sections. Each appears in the menu and on the home page once it has an entry.
+# Lighter sections, grouped under the "Collection" menu. On the home page they appear once they have an entry.
+collection_title: Collection
 hands_on_title: Hands-On      # notebooks, READMEs, experiments  → content/hands-on/
 notes_title: Notes            # articles, comments on the press, opinion → content/notes/

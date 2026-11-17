@@ -23,8 +23,20 @@
       <a class="brand" href="{{ root }}index.html"{% if active == "home" %} aria-current="page"{% endif %}>{{ site.name }}</a>
       <nav aria-label="Main">
         <ul class="nav">
-          {% for label, href, key in nav %}
-          <li><a href="{{ root }}{{ href }}"{% if key == active %} aria-current="page"{% endif %}>{{ label }}</a></li>
+          {% for label, href, key, children in nav %}
+          {% set is_active = key == active or active in (children | map(attribute=2) | list) %}
+          {% if children %}
+          <li class="has-menu">
+            <a href="{{ root }}{{ href }}"{% if is_active %} aria-current="page"{% endif %} aria-haspopup="true">{{ label }} <span class="caret" aria-hidden="true">▾</span></a>
+            <ul class="submenu">
+              {% for c_label, c_href, c_key, _ in children %}
+              <li><a href="{{ root }}{{ c_href }}"{% if c_key == active %} aria-current="page"{% endif %}>{{ c_label }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          {% else %}
+          <li><a href="{{ root }}{{ href }}"{% if is_active %} aria-current="page"{% endif %}>{{ label }}</a></li>
+          {% endif %}
           {% endfor %}
           {% for s in site.social %}
           <li class="nav-icon"><a href="{{ s.url }}" rel="me noopener" target="_blank" aria-label="{{ s.label or (s.icon | capitalize) }}">{% include "icons/" ~ s.icon ~ ".svg" %}</a></li>
