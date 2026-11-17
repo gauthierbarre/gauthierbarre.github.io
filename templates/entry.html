@@ -16,7 +16,7 @@
       <header class="article-head">
         {% if n.topic %}<p class="note-topic">{{ n.topic }}</p>{% endif %}
         <h1>{{ n.title }}{% if n.draft %} <span class="draft">draft</span>{% endif %}</h1>
-        <p class="entry-meta">{{ n.date | month }}{% if n.updated %} · updated {{ n.updated | month }}{% endif %}{% if n.source %} · {{ n.source }}{% endif %}</p>
+        {% if n.section != "hands_on" %}<p class="entry-meta">{{ n.date | month }}{% if n.updated %} · updated {{ n.updated | month }}{% endif %}{% if n.source %} · {{ n.source }}{% endif %}</p>{% endif %}
         {% if n.notebook or n.repo %}
         <p class="actions">
           {% if n.notebook %}

@@ -21,18 +21,7 @@
   --gutter: clamp(16px, 5vw, 80px);       /* side padding, grows with the window */
   --side: clamp(180px, 18vw, 260px);      /* left label column on wide screens */
   --col-gap: clamp(32px, 4vw, 72px);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #101215;
-    --text: #e9eaec;
-    --text-2: #b7bbc2;
-    --muted: #80868f;
-    --rule: #24272d;
-    --accent: #a8c0e2;
-    --code-bg: #191c21;
-  }
+  color-scheme: light;
 }
 
 *, *::before, *::after { box-sizing: border-box; }

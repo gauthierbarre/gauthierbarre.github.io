@@ -1,5 +1,5 @@
 {# One notebook entry in a compact list. Expects `n` and `root`. #}
 <li>
   <a class="compact-title" href="{{ n.url if n.external else root ~ n.url }}"{% if n.external %} target="_blank" rel="noopener"{% endif %}>{{ n.title }}{% if n.external %} <span class="ext" aria-hidden="true">↗</span>{% endif %}</a>{% if n.draft %} <span class="draft">draft</span>{% endif %}
-  <span class="compact-meta">{% if n.topic %}{{ n.topic }} · {% endif %}{{ n.date | month }}</span>
+  <span class="compact-meta">{% if n.section == "hands_on" %}{{ n.topic }}{% else %}{% if n.topic %}{{ n.topic }} · {% endif %}{{ n.date | month }}{% endif %}</span>
 </li>

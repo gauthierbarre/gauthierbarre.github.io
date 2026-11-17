@@ -12,7 +12,7 @@
           {% if n.topic %}<p class="note-topic">{{ n.topic }}</p>{% endif %}
           <h3 class="entry-title"><a href="{{ n.url if n.external else root ~ n.url }}"{% if n.external %} target="_blank" rel="noopener"{% endif %}>{{ n.title }}{% if n.external %} <span class="ext" aria-hidden="true">↗</span>{% endif %}</a>{% if n.draft %} <span class="draft">draft</span>{% endif %}</h3>
           {% if n.summary %}<p class="entry-summary">{{ n.summary }}</p>{% endif %}
-          <p class="entry-links"><span class="muted">{{ n.date | month }}{% if n.press and n.press.outlet %} · on {{ n.press.outlet }}{% endif %}{% if n.source %} · {{ n.source }}{% endif %}</span></p>
+          {% if n.section != "hands_on" %}<p class="entry-links"><span class="muted">{{ n.date | month }}{% if n.press and n.press.outlet %} · on {{ n.press.outlet }}{% endif %}{% if n.source %} · {{ n.source }}{% endif %}</span></p>{% endif %}
         </li>
         {% else %}
         <li class="note"><p class="muted">Nothing published yet.</p></li>
