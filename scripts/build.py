@@ -42,7 +42,7 @@ PROJECTS = CONTENT / "projects"
 COLLECTIONS = {
     "hands_on": ("hands-on", "hands-on", "Hands-On",
                  "Notebooks and experiments where I write every line of code myself, without AI-generated code."),
-    "notes": ("notes", "notes", "Notes", "Short articles: comments on the news and my view on markets and quant research."),
+    "notes": ("notes", "notes", "Notes", ""),
 }
 STATIC = ROOT / "static"
 TEMPLATES = ROOT / "templates"
