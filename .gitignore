@@ -1,2 +1,5 @@
 .DS_Store
-.claude/
+.venv/
+_site/
+__pycache__/
+.claude/settings.local.json

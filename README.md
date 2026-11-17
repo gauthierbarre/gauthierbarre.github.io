@@ -4,69 +4,82 @@ Personal portfolio of Gauthier Barre — quantitative finance, research and syst
 
 **Live site:** https://gauthierbarre.github.io/portefolio/
 
-Plain HTML, CSS and a few lines of JavaScript: no build step, no framework, no backend.
+A small static site generator (Python + Markdown + Jinja2). Each project is one folder with a
+Markdown file and its figures; a GitHub Actions workflow builds and publishes the site on every
+push to `main`.
 
-## Structure
+## Layout
 
 ```
-index.html                  the whole site (Home, Projects, Notes, Skills, About)
-404.html                    not-found page (absolute /portefolio/ paths)
-assets/css/style.css        styles; colours and fonts are CSS variables at the top
-assets/js/main.js           mobile menu, active nav link, reveal animation, figure lightbox
-assets/img/<project>/       figures, copied from each project's repository or notebook outputs
-assets/favicon.svg
-robots.txt, sitemap.xml     basic SEO
-.nojekyll                   serve files as-is (no Jekyll processing)
+site.yml                          name, tagline, about, keywords, social links, CV, photo
+content/projects/<slug>/index.md  one project: front matter + sections + figures in the same folder
+content/notes.yml                 short technical notes (links to notebook sections, PDFs, …)
+static/                           copied as-is: css/, js/, favicon.svg, cv.pdf, photo
+templates/                        page layouts (base, home, projects, project, notes, 404) and icons
+scripts/build.py                  builds _site/ and validates it
+scripts/new_project.py            scaffolds a new project
+.github/workflows/deploy.yml      build on push/PR, deploy main to GitHub Pages
 ```
 
-All paths in `index.html` are **relative** (`assets/...`), so the site works both locally and under
-the `/portefolio/` sub-path on GitHub Pages. Only `404.html` uses absolute `/portefolio/...` paths,
-because GitHub serves it from any URL depth.
+Pages: **Home** (About, Latest, Keywords, Contact) · **Projects** (list) · one page per project
+with a numbered table of contents · **Notes** · **CV** (appears once `cv:` is set in `site.yml`).
 
-## Preview locally
+## Commands
 
 ```bash
-python3 -m http.server 8000
+make install                      # once: .venv + dependencies
+make serve                        # build with drafts and serve on http://localhost:8000
+make build                        # production build into _site/ (what CI runs)
+make new SLUG=my-project TITLE='Does X beat Y?' REPO=https://github.com/gauthierbarre/my-project
 ```
 
-Then open http://localhost:8000/.
+## Add a project
 
-## Common edits
+1. `make new SLUG=my-project TITLE='…'` creates `content/projects/my-project/index.md` as a draft.
+2. Copy the figures (PNG/JPG/SVG, ≈ 900–1100 px wide) into the same folder.
+3. Fill in the front matter and the sections, then delete the `draft: true` line.
+4. `make serve` to check, then commit and push. CI builds, validates and deploys.
 
-### Add or update a project
+### Front matter
 
-1. Put its figures in `assets/img/<project-name>/` (PNG, ideally ≤ 1100 px wide).
-2. In `index.html`, copy an existing `<article class="project">` block inside `#projects` and edit:
-   - `project-meta` (domain · context · period) and the `<h3>` title;
-   - the repository link;
-   - **Problem**, **Methodology**, **Verified results** (a `<table>` or the `.kpis` cards), **Takeaways**;
-   - the `.tags` list (technologies);
-   - the `<figure>` blocks: set `src`, a descriptive `alt`, and the image `width`/`height`.
-3. Only publish numbers that appear in the project's README or executed notebooks.
+| Field | Required | Meaning |
+|---|---|---|
+| `title` | yes | Page title; a question or a claim reads best |
+| `summary` | yes | One sentence for lists and link previews |
+| `date` | yes | `YYYY-MM-DD`, used for ordering and “Latest” |
+| `updated` | | `YYYY-MM-DD`, shown as “updated …” |
+| `label` | | Short mono label above the title (defaults to the folder name) |
+| `context`, `period` | | e.g. `MaQI Hackathon 1`, `2011–2024` |
+| `repo`, `paper` | | Links shown under the title |
+| `cover` | | Figure used as the link-preview image |
+| `tags` | | Tools, listed at the bottom |
+| `math` | | `true` renders `$…$` and `$$…$$` with KaTeX (avoid bare `$` signs in that page) |
+| `draft` | | `true` hides the project from the production build |
 
-### Add a technical note
+### Body conventions
 
-Copy an `<li class="note">` in `#notes`. Set the topic, title, link (a notebook section, a PDF in
-`assets/`, or a new HTML page next to `index.html`), a one-line summary and the source line.
+- `## Section title` starts a numbered section; the **next line** (optional) is its subtitle,
+  shown in the table of contents. Leave a blank line before the body.
+- A figure is an image alone on its line:
+  `![Alt text describing the figure.](file.png "Caption shown under it.")` — the alt text is required.
+- Tables, lists, code blocks and footnotes are standard Markdown.
+- Only publish numbers that appear in the project's README or executed notebooks.
 
-### Add LinkedIn, e-mail or a CV
+## Other edits
 
-- **CV:** add `assets/cv.pdf`, then add a button in `.hero-actions`:
-  `<a class="btn" href="assets/cv.pdf">CV</a>`
-- **LinkedIn / e-mail:** add a button in `.hero-actions` and an `<li>` in the `.contact` list
-  (placeholders are marked with HTML comments). Remember to add the LinkedIn URL to `sameAs`
-  in the JSON-LD block of `<head>`.
-
-### Change colours or fonts
-
-Edit the variables in `:root` at the top of `assets/css/style.css`.
+- **Home page text, keywords, links:** `site.yml`.
+- **Note:** add an entry to `content/notes.yml`.
+- **CV:** put `cv.pdf` in `static/` and set `cv: cv.pdf` in `site.yml`.
+- **Photo:** put it in `static/` and set `photo:` in `site.yml` (otherwise the initials are shown).
+- **Colours and fonts:** variables at the top of `static/css/style.css`.
 
 ## Deployment
 
-GitHub Pages is set to **Deploy from a branch → `main` / `(root)`** (Settings → Pages).
-Every push to `main` republishes the site automatically; progress is visible in the repository's
-**Actions** tab ("pages build and deployment") and the site updates about a minute later.
-`.nojekyll` makes GitHub serve the files as they are.
+`.github/workflows/deploy.yml` builds on every push and pull request; on `main` it deploys
+`_site/` to GitHub Pages. The build fails — and nothing is deployed — on a missing required field,
+a missing figure or a broken internal link.
+
+One-time setting: **Settings → Pages → Build and deployment → Source: GitHub Actions.**
 
 ## Content sources
 

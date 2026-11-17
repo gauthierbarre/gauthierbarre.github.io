@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block head_extra %}
+  <link rel="canonical" href="{{ site.url }}">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "Person", "name": {{ site.name | tojson }}, "url": {{ site.url | tojson }},
+   "sameAs": {{ site.social | map(attribute="url") | list | tojson }}}
+  </script>
+{% endblock %}
+{% block content %}
+  <section class="block" aria-labelledby="about">
+    <h2 class="smallcaps" id="about">About</h2>
+    <div class="prose">{{ site.about_html | safe }}</div>
+  </section>
+
+  {% if latest %}
+  <section class="block" aria-labelledby="latest">
+    <h2 class="smallcaps" id="latest">Latest</h2>
+    <ul class="entries">
+      {% for e in latest %}
+      <li class="entry">
+        <p class="entry-meta">
+          <span class="kind">{{ e.kind }}</span>{% if e.label %} · <code>{{ e.label }}</code>{% endif %}
+          · {{ e.date | date }}{% if e.updated %}, updated {{ e.updated | date }}{% endif %}
+        </p>
+        {% if e.kind == "Project" %}
+        <a class="entry-title" href="{{ e.url }}">{{ e.title }}</a>
+        {% else %}
+        <a class="entry-title" href="{{ e.url if e.external else root ~ e.url }}"{% if e.external %} target="_blank" rel="noopener"{% endif %}>{{ e.title }}{% if e.external %} <span class="ext" aria-hidden="true">↗</span>{% endif %}</a>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if site.keywords %}
+  <section class="block" aria-labelledby="keywords">
+    <h2 class="smallcaps" id="keywords">Keywords</h2>
+    <p class="keywords">{% for k in site.keywords %}<span>{{ k }}</span>{% endfor %}</p>
+  </section>
+  {% endif %}
+
+  <section class="block" aria-labelledby="contact">
+    <h2 class="smallcaps" id="contact">Contact</h2>
+    <ul class="contact">
+      {% if site.email %}<li>{{ site.email }}</li>{% endif %}
+      {% for s in site.social %}
+      <li><a href="{{ s.url }}" rel="me noopener" target="_blank">{{ s.url | replace("https://", "") | replace("www.", "") }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endblock %}

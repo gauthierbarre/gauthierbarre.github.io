@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block description %}{{ p.summary }}{% endblock %}
+{% block head_extra %}
+  <link rel="canonical" href="{{ site.url }}{{ p.url }}">
+  <meta property="og:type" content="article">
+  {% if p.cover %}<meta property="og:image" content="{{ site.url }}{{ p.url }}{{ p.cover }}">
+  <meta name="twitter:card" content="summary_large_image">{% endif %}
+  {% if p.math %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.querySelector('.article'), {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]})"></script>
+  {% endif %}
+{% endblock %}
+{% block content %}
+  <article class="article">
+    <header class="article-head">
+      <p class="entry-label"><code>{{ p.label }}</code>{% if p.draft %} <span class="draft">draft</span>{% endif %}</p>
+      <h1>{{ p.title }}</h1>
+      <p class="entry-meta">
+        Posted {{ p.date | date }}{% if p.updated %} · updated {{ p.updated | date }}{% endif %}
+        {% if p.context %} · {{ p.context }}{% endif %}{% if p.period %} · {{ p.period }}{% endif %}
+      </p>
+      {% if p.repo or p.paper %}
+      <p class="article-links">
+        {% if p.repo %}<a href="{{ p.repo }}" target="_blank" rel="noopener">Code ↗</a>{% endif %}
+        {% if p.paper %}<a href="{{ p.paper }}" target="_blank" rel="noopener">Paper ↗</a>{% endif %}
+      </p>
+      {% endif %}
+    </header>
+
+    {% if p.toc | length > 1 %}
+    <nav class="toc" aria-label="Contents">
+      <ol>
+        {% for s in p.toc %}
+        <li><a href="#{{ s.id }}"><span class="toc-n">{{ s.n }}</span><span class="toc-t">{{ s.title | safe }}</span><span class="toc-s">{{ s.sub | safe }}</span></a></li>
+        {% endfor %}
+      </ol>
+    </nav>
+    {% endif %}
+
+    <div class="prose">
+      {{ p.html | safe }}
+    </div>
+
+    {% if p.tags %}
+    <ul class="tags" aria-label="Tools">
+      {% for t in p.tags %}<li>{{ t }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+
+    <p class="back"><a href="{{ root }}projects.html">← All projects</a></p>
+  </article>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Enlarged figure">
+    <button class="lightbox-close" type="button" aria-label="Close">×</button>
+    <img alt="">
+  </dialog>
+{% endblock %}
+{% block scripts %}<script src="{{ root }}js/main.js" defer></script>{% endblock %}

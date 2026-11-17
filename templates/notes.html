@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="block">
+    <h1 class="smallcaps">Notes</h1>
+    <p class="lede">Short technical write-ups. Most live inside project notebooks; each link points to the relevant section.</p>
+    <ul class="entries">
+      {% for n in notes %}
+      <li class="entry">
+        <p class="entry-meta"><span class="kind">{{ n.topic }}</span> · {{ n.date | date }}</p>
+        <a class="entry-title" href="{{ n.url if n.external else root ~ n.url }}"{% if n.external %} target="_blank" rel="noopener"{% endif %}>{{ n.title }}{% if n.external %} <span class="ext" aria-hidden="true">↗</span>{% endif %}</a>
+        {% if n.summary %}<p class="entry-summary">{{ n.summary }}</p>{% endif %}
+        {% if n.source %}<p class="entry-meta mono">{{ n.source }}</p>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endblock %}
